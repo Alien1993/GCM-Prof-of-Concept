@@ -1,16 +1,43 @@
 package it.silvanocerza.gcmproofofconcept;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 
 public class MainActivity extends AppCompatActivity {
+    private Button mRegisterButton;
+    private TextView mRegistrationStatusTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mRegisterButton = (Button) findViewById(R.id.register_button);
+        mRegisterButton.setEnabled(checkPlayServices());
+
+        mRegistrationStatusTextView = (TextView) findViewById(R.id.registration_status);
+        mRegistrationStatusTextView.setText(getString(R.string.token_not_received));
+
+        IntentFilter registrationFilter = new IntentFilter();
+        registrationFilter.addAction(Constants.REGISTRATION_COMPLETE);
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                new RegistrationReceiver(), registrationFilter
+        );
     }
 
     @Override
@@ -33,5 +60,33 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void register(View view) {
+        Intent intent = new Intent(this, RegistrationIntentService.class);
+        startService(intent);
+    }
+
+    private boolean checkPlayServices() {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this,
+                        400).show();
+            } else {
+                Log.i("MainActivity", "Device is not supported");
+                finish();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private class RegistrationReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            mRegistrationStatusTextView.setText(getString(R.string.token_received));
+        }
     }
 }
