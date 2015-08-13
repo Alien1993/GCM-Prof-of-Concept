@@ -3,6 +3,6 @@
 
     <string name="action_settings">Settings</string>
 
-    <string name="token_not_received">Token not received</string>
-    <string name="token_received">Token received</string>
+    <string name="token_not_stored">Token not stored</string>
+    <string name="token_stored">Token stored</string>
 </resources>

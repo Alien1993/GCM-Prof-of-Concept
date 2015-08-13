@@ -2,6 +2,7 @@ package it.silvanocerza.gcmproofofconcept;
 
 import com.google.gson.JsonElement;
 
+import retrofit.ResponseCallback;
 import retrofit.client.Response;
 import retrofit.http.Body;
 import retrofit.http.DELETE;
@@ -18,6 +19,6 @@ public interface Api {
     Response updateRegistrationId(@Path("deviceId") String deviceId, @Body JsonElement jsonBody);
 
     @DELETE("/gcm/{deviceId}/")
-    void deleteDeviceId(@Path("deviceId") String deviceId);
+    void deleteDeviceId(@Path("deviceId") String deviceId, ResponseCallback callback);
 
 }

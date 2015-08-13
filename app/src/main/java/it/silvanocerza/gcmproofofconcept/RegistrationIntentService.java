@@ -69,7 +69,6 @@ public class RegistrationIntentService extends IntentService {
         String deviceId = Settings.Secure.getString(getBaseContext().getContentResolver(),
                 Settings.Secure.ANDROID_ID);
 
-
         json.addProperty("device_id", deviceId);
         json.addProperty("registration_id", token);
 

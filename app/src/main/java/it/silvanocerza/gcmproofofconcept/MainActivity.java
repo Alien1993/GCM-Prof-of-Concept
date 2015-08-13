@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,9 +19,14 @@ import android.widget.TextView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
+import retrofit.ResponseCallback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
+
 public class MainActivity extends AppCompatActivity {
+    private SharedPreferences mPreferences;
     private Button mRegisterButton;
-    private TextView mRegistrationStatusTextView;
+    private TextView mRegistrationStatusTextView, mRegistrationTokenTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +37,11 @@ public class MainActivity extends AppCompatActivity {
         mRegisterButton.setEnabled(checkPlayServices());
 
         mRegistrationStatusTextView = (TextView) findViewById(R.id.registration_status);
-        mRegistrationStatusTextView.setText(getString(R.string.token_not_received));
+        mRegistrationStatusTextView.setText(getString(R.string.token_not_stored));
+
+        mRegistrationTokenTextView = (TextView) findViewById(R.id.registration_token);
+
+        mPreferences = getSharedPreferences(Constants.TOKEN_PREFS, MODE_PRIVATE);
 
         IntentFilter registrationFilter = new IntentFilter();
         registrationFilter.addAction(Constants.REGISTRATION_COMPLETE);
@@ -67,6 +78,27 @@ public class MainActivity extends AppCompatActivity {
         startService(intent);
     }
 
+    public void deleteDevice(View view) {
+        String deviceId = Settings.Secure.getString(getBaseContext().getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+
+        mPreferences.edit().remove(Constants.TOKEN).apply();
+        mRegistrationStatusTextView.setText(getString(R.string.token_not_stored));
+        mRegistrationTokenTextView.setText("");
+
+        new RestClient().getApi().deleteDeviceId(deviceId, new ResponseCallback() {
+            @Override
+            public void success(Response response) {
+                Log.i("DeleteDeviceCall", "Status: " + response.getStatus());
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+
+            }
+        });
+    }
+
     private boolean checkPlayServices() {
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
         if (resultCode != ConnectionResult.SUCCESS) {
@@ -86,7 +118,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            mRegistrationStatusTextView.setText(getString(R.string.token_received));
+            mRegistrationStatusTextView.setText(getString(R.string.token_stored));
+            mRegistrationTokenTextView.setText(mPreferences.getString(Constants.TOKEN, ""));
         }
     }
 }
