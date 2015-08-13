@@ -5,4 +5,5 @@ public class Constants {
     public static final String TOKEN = "token_key";
     public static final String TOKEN_IS_SENT = "token_is_sent";
     public static final String REGISTRATION_COMPLETE = "completed";
+    public static final String ROOT_ENDPOINT = "https://gcm.evo9.it/api/";
 }
