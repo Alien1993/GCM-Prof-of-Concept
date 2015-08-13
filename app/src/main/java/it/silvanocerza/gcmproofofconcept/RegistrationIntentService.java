@@ -35,14 +35,14 @@ public class RegistrationIntentService extends IntentService {
 
             preferences.edit().putBoolean(Constants.TOKEN_IS_SENT, true).apply();
 
+            Intent registrationComplete = new Intent(Constants.REGISTRATION_COMPLETE);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
+
         } catch (IOException exc) {
             Log.d(TAG, "Failed to retrieve token", exc);
 
             preferences.edit().putBoolean(Constants.TOKEN_IS_SENT, false).apply();
         }
-
-        Intent registrationComplete = new Intent(Constants.REGISTRATION_COMPLETE);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
     }
 
 
